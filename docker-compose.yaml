@@ -1,0 +1,57 @@
+version: '3.8'
+services: 
+
+    db: 
+      image: mysql
+      container_name: db_docker_symfony
+      restart: always
+      networks: 
+        - dev
+      environment: 
+        MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      volumes: 
+        - db-data:/var/lib/mysql
+
+    phpmyadmin:
+      image: phpmyadmin
+      container_name: phpmyadmin_docker_symfony
+      restart: always
+      depends_on: 
+        - db
+      ports: 
+        - 8080:80
+      networks: 
+        - dev
+      environment: 
+        PMA_HOSTS: db
+    maildev:
+      image: maildev/maildev
+      container_name: maildev_docker_symfony
+      restart: always
+      networks: 
+        - dev
+      ports: 
+        - 8081:80
+      command: bin/maildev --web 80 --smtp 25 --hide-extensions STARTTLS
+    www:
+      build: php
+      container_name: www_docker_symfony
+      restart: always
+      networks: 
+          - dev
+      ports: 
+        - 8082:80
+      volumes: 
+        - ./php/vhosts/:/etc/apache2/sites-enabled
+        - ./:/var/www
+
+
+
+
+
+
+networks: 
+    dev:
+volumes:  
+    db-data:
+      
